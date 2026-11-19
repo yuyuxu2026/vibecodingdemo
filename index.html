@@ -91,9 +91,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     min-height: 44px;
     padding: 0 3px;
+  }
+
+  .top-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
   }
 
   .brand {
@@ -146,7 +153,8 @@
     white-space: nowrap;
   }
 
-  .restart-btn {
+  .restart-btn,
+  .music-btn {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
@@ -170,14 +178,86 @@
     transition: transform 0.35s ease;
   }
 
-  .restart-btn:hover {
+  .restart-btn:hover,
+  .music-btn:hover {
     background: rgba(255, 255, 255, 0.88);
     transform: translateY(-2px);
     box-shadow: 0 10px 22px rgba(100, 47, 125, 0.18), inset 0 1px 0 #fff;
   }
 
   .restart-btn:hover .icon { transform: rotate(-180deg); }
-  .restart-btn:active { transform: translateY(0) scale(0.97); }
+  .restart-btn:active,
+  .music-btn:active { transform: translateY(0) scale(0.97); }
+
+  .music-btn {
+    padding: 9px 12px;
+    color: #712d64;
+    background: linear-gradient(145deg, rgba(255, 252, 255, 0.82), rgba(255, 215, 235, 0.7));
+  }
+
+  .music-btn:hover {
+    background: linear-gradient(145deg, #ffffff, #ffe2f1);
+    box-shadow: 0 10px 22px rgba(139, 53, 109, 0.18), inset 0 1px 0 #fff;
+  }
+
+  .music-btn.is-playing {
+    border-color: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 7px 18px rgba(139, 53, 109, 0.17), 0 0 0 3px rgba(255, 130, 184, 0.14), inset 0 1px 0 #fff;
+  }
+
+  .music-btn.is-off {
+    color: rgba(87, 66, 103, 0.72);
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 6px 15px rgba(100, 47, 125, 0.1), inset 0 1px 0 #fff;
+  }
+
+  .music-btn .music-icon {
+    display: inline-block;
+    font-size: 1.2em;
+    line-height: 1;
+    transition: filter 0.2s ease, opacity 0.2s ease;
+  }
+
+  .music-btn.is-off .music-icon {
+    opacity: 0.65;
+    filter: grayscale(1);
+  }
+
+  .equalizer {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    width: 13px;
+    height: 14px;
+    margin-left: 1px;
+  }
+
+  .equalizer i {
+    display: block;
+    width: 3px;
+    height: 100%;
+    border-radius: 3px;
+    background: currentColor;
+    opacity: 0.62;
+    transform-origin: bottom;
+    animation: equalizer 0.58s ease-in-out infinite alternate;
+  }
+
+  .equalizer i:nth-child(1) { height: 46%; animation-delay: -0.38s; }
+  .equalizer i:nth-child(2) { height: 78%; animation-delay: -0.17s; }
+  .equalizer i:nth-child(3) { height: 58%; animation-delay: -0.29s; }
+
+  .music-btn:not(.is-playing) .equalizer i {
+    animation-play-state: paused;
+    opacity: 0.28;
+  }
+
+  .music-btn.is-off .equalizer { display: none; }
+
+  @keyframes equalizer {
+    from { transform: scaleY(0.3); }
+    to   { transform: scaleY(1); }
+  }
 
   .hud {
     display: grid;
@@ -677,9 +757,14 @@
   .again-btn:active { transform: translateY(6px); box-shadow: 0 3px 0 #d34b76, 0 6px 14px rgba(194, 64, 111, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
 
   @media (max-width: 480px) {
-    .restart-btn { width: 42px; height: 42px; justify-content: center; padding: 0; }
+    .top-actions { gap: 5px; }
+    .restart-btn,
+    .music-btn { width: 42px; height: 42px; justify-content: center; padding: 0; }
     .restart-btn span { display: none; }
     .restart-btn .icon { font-size: 21px; }
+    .music-btn .music-label,
+    .music-btn .equalizer { display: none; }
+    .music-btn .music-icon { font-size: 20px; }
     .subtitle { display: none; }
     .brand { gap: 8px; }
     .hud { gap: 5px; }
@@ -726,9 +811,16 @@
           <p class="subtitle">交换相邻水果，三个连成线</p>
         </div>
       </div>
-      <button id="restart-btn" class="restart-btn" type="button" title="重新开始">
-        <span class="icon" aria-hidden="true">↻</span><span>重新开始</span>
-      </button>
+      <div class="top-actions">
+        <button id="music-btn" class="music-btn is-on" type="button" aria-label="关闭游戏音乐" aria-pressed="true" title="关闭游戏音乐">
+          <span class="music-icon" id="music-icon" aria-hidden="true">🎵</span>
+          <span class="music-label">音乐</span>
+          <span class="equalizer" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <button id="restart-btn" class="restart-btn" type="button" title="重新开始">
+          <span class="icon" aria-hidden="true">↻</span><span>重新开始</span>
+        </button>
+      </div>
     </header>
 
     <section class="hud" aria-label="游戏状态">
@@ -799,6 +891,8 @@
   const comboValueEl = document.getElementById('combo-value');
   const scoreCardEl = document.getElementById('score-card');
   const comboCardEl = document.getElementById('combo-card');
+  const musicBtn = document.getElementById('music-btn');
+  const musicIconEl = document.getElementById('music-icon');
   const restartBtn = document.getElementById('restart-btn');
   const gameoverEl = document.getElementById('gameover');
   const finalScoreEl = document.getElementById('final-score');
@@ -1022,6 +1116,291 @@
     window.clearTimeout(toastTimer);
     toastEl.classList.remove('show');
   }
+
+  // Synthesized background music: no audio files, network, or external libraries.
+  const music = (() => {
+    const BPM = 112;
+    const STEP_DURATION = 60 / BPM / 2;
+    const LOOP_STEPS = 32;
+    const MUSIC_LEVEL = 0.72;
+    const MELODY = [
+      76, null, 79, 81, 79, 76, 74, 72,
+      69, null, 72, 76, 74, 72, 69, 67,
+      65, null, 69, 72, 77, 76, 72, 69,
+      67, null, 71, 74, 79, 77, 74, null
+    ];
+    const BASS_ROOTS = [48, 45, 41, 43];
+    const BASS_FIFTHS = [55, 52, 48, 50];
+    const CHORDS = [
+      [60, 64, 67],
+      [57, 60, 64],
+      [53, 57, 60],
+      [55, 59, 62]
+    ];
+
+    let context = null;
+    let masterGain = null;
+    let musicGain = null;
+    let noiseBuffer = null;
+    let schedulerTimer = 0;
+    let nextNoteTime = 0;
+    let currentStep = 0;
+    let enabled = true;
+    let started = false;
+    let running = false;
+    let pausedByVisibility = false;
+
+    const midiToFreq = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
+
+    function ensureContext() {
+      if (context) return;
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) throw new Error('Web Audio API is not supported');
+
+      context = new AudioContextClass();
+
+      const compressor = context.createDynamicsCompressor();
+      compressor.threshold.value = -18;
+      compressor.knee.value = 18;
+      compressor.ratio.value = 4;
+      compressor.attack.value = 0.004;
+      compressor.release.value = 0.24;
+
+      masterGain = context.createGain();
+      masterGain.gain.value = 0.7;
+
+      musicGain = context.createGain();
+      musicGain.gain.value = 0.0001;
+      musicGain.connect(compressor);
+      compressor.connect(masterGain);
+      masterGain.connect(context.destination);
+
+      const bufferLength = Math.floor(context.sampleRate * 0.08);
+      noiseBuffer = context.createBuffer(1, bufferLength, context.sampleRate);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferLength; i++) {
+        noiseData[i] = Math.random() * 2 - 1;
+      }
+    }
+
+    function playTone(frequency, when, duration, type, volume) {
+      const oscillator = context.createOscillator();
+      const envelope = context.createGain();
+      const end = when + Math.max(duration, 0.06);
+
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, when);
+      envelope.gain.setValueAtTime(0.0001, when);
+      envelope.gain.exponentialRampToValueAtTime(Math.max(volume, 0.0002), when + 0.018);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, end);
+
+      oscillator.connect(envelope);
+      envelope.connect(musicGain);
+      oscillator.start(when);
+      oscillator.stop(end + 0.05);
+    }
+
+    function playKick(when) {
+      const oscillator = context.createOscillator();
+      const envelope = context.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(150, when);
+      oscillator.frequency.exponentialRampToValueAtTime(46, when + 0.12);
+      envelope.gain.setValueAtTime(0.0001, when);
+      envelope.gain.exponentialRampToValueAtTime(0.09, when + 0.008);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, when + 0.2);
+
+      oscillator.connect(envelope);
+      envelope.connect(musicGain);
+      oscillator.start(when);
+      oscillator.stop(when + 0.24);
+    }
+
+    function playHat(when) {
+      if (!noiseBuffer) return;
+
+      const source = context.createBufferSource();
+      const filter = context.createBiquadFilter();
+      const envelope = context.createGain();
+
+      source.buffer = noiseBuffer;
+      filter.type = 'highpass';
+      filter.frequency.value = 6800;
+      envelope.gain.setValueAtTime(0.011, when);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, when + 0.045);
+
+      source.connect(filter);
+      filter.connect(envelope);
+      envelope.connect(musicGain);
+      source.start(when);
+      source.stop(when + 0.06);
+    }
+
+    function scheduleStep(step, when) {
+      const bar = Math.floor(step / 8);
+      const beat = step % 8;
+      const melodyNote = MELODY[step];
+
+      if (melodyNote !== null) {
+        playTone(midiToFreq(melodyNote), when, STEP_DURATION * 1.35, 'triangle', 0.055);
+      }
+
+      if (beat === 0 || beat === 4) {
+        playTone(midiToFreq(BASS_ROOTS[bar]), when, STEP_DURATION * 3.7, 'sine', 0.095);
+        for (let i = 0; i < CHORDS[bar].length; i++) {
+          playTone(midiToFreq(CHORDS[bar][i]), when + i * 0.012, STEP_DURATION * 1.65, 'triangle', 0.014);
+        }
+        playKick(when);
+      } else if (beat === 2 || beat === 6) {
+        playTone(midiToFreq(BASS_FIFTHS[bar]), when, STEP_DURATION * 1.3, 'sine', 0.045);
+      }
+
+      if (beat % 2 === 1) playHat(when);
+    }
+
+    function scheduler() {
+      if (!running || !context) return;
+      while (nextNoteTime < context.currentTime + 0.4) {
+        scheduleStep(currentStep, nextNoteTime);
+        currentStep = (currentStep + 1) % LOOP_STEPS;
+        nextNoteTime += STEP_DURATION;
+      }
+    }
+
+    function updateButton() {
+      musicBtn.classList.toggle('is-on', enabled);
+      musicBtn.classList.toggle('is-off', !enabled);
+      musicBtn.classList.toggle('is-playing', enabled && running);
+      musicBtn.setAttribute('aria-pressed', String(enabled));
+
+      const label = enabled ? '关闭游戏音乐' : '开启游戏音乐';
+      musicBtn.setAttribute('aria-label', label);
+      musicBtn.title = label;
+      musicIconEl.textContent = enabled ? '🎵' : '🔇';
+    }
+
+    async function startPlayback() {
+      if (!enabled) return false;
+
+      try {
+        ensureContext();
+        if (context.state === 'suspended') await context.resume();
+        if (!enabled) return false;
+        if (context.state !== 'running') {
+          enabled = false;
+          running = false;
+          updateButton();
+          return false;
+        }
+
+        started = true;
+        if (running) {
+          updateButton();
+          return true;
+        }
+
+        running = true;
+        currentStep = 0;
+        nextNoteTime = context.currentTime + 0.08;
+
+        const now = context.currentTime;
+        musicGain.gain.cancelScheduledValues(now);
+        musicGain.gain.setValueAtTime(Math.max(0.0001, musicGain.gain.value), now);
+        musicGain.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 0.6);
+
+        scheduler();
+        window.clearInterval(schedulerTimer);
+        schedulerTimer = window.setInterval(scheduler, 90);
+        updateButton();
+        return true;
+      } catch (error) {
+        running = false;
+        enabled = false;
+        window.clearInterval(schedulerTimer);
+        schedulerTimer = 0;
+        updateButton();
+        return false;
+      }
+    }
+
+    function stopPlayback() {
+      running = false;
+      window.clearInterval(schedulerTimer);
+      schedulerTimer = 0;
+
+      if (context && musicGain) {
+        const now = context.currentTime;
+        musicGain.gain.cancelScheduledValues(now);
+        musicGain.gain.setValueAtTime(Math.max(0.0001, musicGain.gain.value), now);
+        musicGain.gain.linearRampToValueAtTime(0.0001, now + 0.18);
+      }
+      updateButton();
+    }
+
+    function toggle() {
+      enabled = !enabled;
+      if (enabled) {
+        startPlayback();
+      } else {
+        stopPlayback();
+      }
+      updateButton();
+      return enabled;
+    }
+
+    function removeGestureListeners() {
+      document.removeEventListener('pointerdown', handleFirstGesture, true);
+      document.removeEventListener('keydown', handleFirstGesture, true);
+    }
+
+    function handleFirstGesture(event) {
+      if (!enabled || running) {
+        removeGestureListeners();
+        return;
+      }
+
+      const target = event.target;
+      if (target instanceof Element && target.closest('#music-btn')) return;
+
+      startPlayback();
+      removeGestureListeners();
+    }
+
+    function armAutoStart() {
+      document.addEventListener('pointerdown', handleFirstGesture, { capture: true, passive: true });
+      document.addEventListener('keydown', handleFirstGesture, true);
+    }
+
+    function handleVisibility() {
+      if (document.hidden) {
+        if (running) {
+          pausedByVisibility = true;
+          stopPlayback();
+        }
+      } else if (pausedByVisibility) {
+        pausedByVisibility = false;
+        if (enabled && started) startPlayback();
+      }
+    }
+
+    updateButton();
+
+    return {
+      armAutoStart,
+      handleVisibility,
+      toggle,
+      getState() {
+        return {
+          enabled,
+          started,
+          running,
+          contextState: context ? context.state : 'none'
+        };
+      }
+    };
+  })();
 
   function componentsOf(indices) {
     const remaining = new Set(indices);
@@ -1336,12 +1715,15 @@
 
   restartBtn.addEventListener('click', newGame);
   againBtn.addEventListener('click', newGame);
+  musicBtn.addEventListener('click', music.toggle);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) hideToast();
+    music.handleVisibility();
   });
 
   buildGrid();
   newGame();
+  music.armAutoStart();
 
   // A tiny read-only hook for automated smoke tests; it cannot alter game state.
   window.__fruitGame = {
@@ -1356,6 +1738,9 @@
         hasMatch: findMatchSet(board).size > 0,
         possibleMove: findPossibleMove(board.slice())
       };
+    },
+    getAudioState() {
+      return music.getState();
     }
   };
 })();
