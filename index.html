@@ -408,7 +408,7 @@
   }
 
   .cell[data-fruit="0"] { background: linear-gradient(145deg, rgba(255, 221, 222, 0.82), rgba(255, 177, 183, 0.48)); }
-  .cell[data-fruit="1"] { background: linear-gradient(145deg, rgba(255, 228, 179, 0.85), rgba(255, 189, 102, 0.48)); }
+  .cell[data-fruit="1"] { background: linear-gradient(145deg, rgba(210, 232, 255, 0.9), rgba(105, 164, 244, 0.5)); }
   .cell[data-fruit="2"] { background: linear-gradient(145deg, rgba(255, 249, 185, 0.88), rgba(245, 218, 91, 0.48)); }
   .cell[data-fruit="3"] { background: linear-gradient(145deg, rgba(230, 211, 255, 0.88), rgba(183, 146, 242, 0.48)); }
   .cell[data-fruit="4"] { background: linear-gradient(145deg, rgba(207, 250, 218, 0.88), rgba(135, 221, 174, 0.48)); }
@@ -799,7 +799,7 @@
     <span>🍇</span>
     <span>🍉</span>
     <span>🥝</span>
-    <span>🍊</span>
+    <span>🫐</span>
   </div>
 
   <main class="game-shell">
@@ -812,9 +812,9 @@
         </div>
       </div>
       <div class="top-actions">
-        <button id="music-btn" class="music-btn is-on" type="button" aria-label="关闭游戏音乐" aria-pressed="true" title="关闭游戏音乐">
-          <span class="music-icon" id="music-icon" aria-hidden="true">🎵</span>
-          <span class="music-label">音乐</span>
+        <button id="music-btn" class="music-btn is-on" type="button" aria-label="关闭游戏声音" aria-pressed="true" title="关闭游戏声音">
+          <span class="music-icon" id="music-icon" aria-hidden="true">🔊</span>
+          <span class="music-label">声音</span>
           <span class="equalizer" aria-hidden="true"><i></i><i></i><i></i></span>
         </button>
         <button id="restart-btn" class="restart-btn" type="button" title="重新开始">
@@ -874,7 +874,7 @@
   const POINTS_PER_FRUIT = 10;
   const TYPES = [
     { emoji: '🍎', name: '苹果' },
-    { emoji: '🍊', name: '橙子' },
+    { emoji: '🫐', name: '蓝莓' },
     { emoji: '🍋', name: '柠檬' },
     { emoji: '🍇', name: '葡萄' },
     { emoji: '🍉', name: '西瓜' },
@@ -1117,12 +1117,14 @@
     toastEl.classList.remove('show');
   }
 
-  // Synthesized background music: no audio files, network, or external libraries.
-  const music = (() => {
+  // Synthesized game audio: a looping background track plus match effects.
+  // No audio files, network, or external libraries are used.
+  const sound = (() => {
     const BPM = 112;
     const STEP_DURATION = 60 / BPM / 2;
     const LOOP_STEPS = 32;
     const MUSIC_LEVEL = 0.72;
+    const SFX_LEVEL = 0.9;
     const MELODY = [
       76, null, 79, 81, 79, 76, 74, 72,
       69, null, 72, 76, 74, 72, 69, 67,
@@ -1141,6 +1143,7 @@
     let context = null;
     let masterGain = null;
     let musicGain = null;
+    let sfxGain = null;
     let noiseBuffer = null;
     let schedulerTimer = 0;
     let nextNoteTime = 0;
@@ -1149,6 +1152,7 @@
     let started = false;
     let running = false;
     let pausedByVisibility = false;
+    let sfxCount = 0;
 
     const midiToFreq = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
 
@@ -1173,6 +1177,11 @@
       musicGain = context.createGain();
       musicGain.gain.value = 0.0001;
       musicGain.connect(compressor);
+
+      sfxGain = context.createGain();
+      sfxGain.gain.value = SFX_LEVEL;
+      sfxGain.connect(compressor);
+
       compressor.connect(masterGain);
       masterGain.connect(context.destination);
 
@@ -1184,7 +1193,7 @@
       }
     }
 
-    function playTone(frequency, when, duration, type, volume) {
+    function playTone(frequency, when, duration, type, volume, destination = musicGain) {
       const oscillator = context.createOscillator();
       const envelope = context.createGain();
       const end = when + Math.max(duration, 0.06);
@@ -1196,7 +1205,7 @@
       envelope.gain.exponentialRampToValueAtTime(0.0001, end);
 
       oscillator.connect(envelope);
-      envelope.connect(musicGain);
+      envelope.connect(destination);
       oscillator.start(when);
       oscillator.stop(end + 0.05);
     }
@@ -1260,6 +1269,60 @@
       if (beat % 2 === 1) playHat(when);
     }
 
+    function playClear(cascade = 1) {
+      if (!enabled || !context || context.state !== 'running' || !sfxGain) return false;
+
+      sfxCount++;
+      const now = context.currentTime + 0.012;
+      const lift = Math.min(Math.max(cascade - 1, 0), 5) * 2;
+
+      // Bubbly pop.
+      const pop = context.createOscillator();
+      const popEnvelope = context.createGain();
+      pop.type = 'sine';
+      pop.frequency.setValueAtTime(midiToFreq(64 + lift), now);
+      pop.frequency.exponentialRampToValueAtTime(midiToFreq(79 + lift), now + 0.06);
+      pop.frequency.exponentialRampToValueAtTime(midiToFreq(72 + lift), now + 0.14);
+      popEnvelope.gain.setValueAtTime(0.0001, now);
+      popEnvelope.gain.exponentialRampToValueAtTime(0.11, now + 0.012);
+      popEnvelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+      pop.connect(popEnvelope);
+      popEnvelope.connect(sfxGain);
+      pop.start(now);
+      pop.stop(now + 0.21);
+
+      // Bright little arpeggio, pitched up a notch on each cascade.
+      [84, 88, 91].forEach((midi, index) => {
+        playTone(
+          midiToFreq(midi + lift),
+          now + 0.025 + index * 0.038,
+          0.16,
+          'triangle',
+          0.028,
+          sfxGain
+        );
+      });
+
+      // A short filtered fizz gives the clear a juicy texture.
+      if (noiseBuffer) {
+        const fizz = context.createBufferSource();
+        const filter = context.createBiquadFilter();
+        const fizzEnvelope = context.createGain();
+        fizz.buffer = noiseBuffer;
+        filter.type = 'highpass';
+        filter.frequency.value = 2600;
+        fizzEnvelope.gain.setValueAtTime(0.034, now);
+        fizzEnvelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+        fizz.connect(filter);
+        filter.connect(fizzEnvelope);
+        fizzEnvelope.connect(sfxGain);
+        fizz.start(now);
+        fizz.stop(now + 0.11);
+      }
+
+      return true;
+    }
+
     function scheduler() {
       if (!running || !context) return;
       while (nextNoteTime < context.currentTime + 0.4) {
@@ -1275,10 +1338,10 @@
       musicBtn.classList.toggle('is-playing', enabled && running);
       musicBtn.setAttribute('aria-pressed', String(enabled));
 
-      const label = enabled ? '关闭游戏音乐' : '开启游戏音乐';
+      const label = enabled ? '关闭游戏声音' : '开启游戏声音';
       musicBtn.setAttribute('aria-label', label);
       musicBtn.title = label;
-      musicIconEl.textContent = enabled ? '🎵' : '🔇';
+      musicIconEl.textContent = enabled ? '🔊' : '🔇';
     }
 
     async function startPlayback() {
@@ -1310,6 +1373,10 @@
         musicGain.gain.setValueAtTime(Math.max(0.0001, musicGain.gain.value), now);
         musicGain.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 0.6);
 
+        sfxGain.gain.cancelScheduledValues(now);
+        sfxGain.gain.setValueAtTime(Math.max(0.0001, sfxGain.gain.value), now);
+        sfxGain.gain.linearRampToValueAtTime(SFX_LEVEL, now + 0.12);
+
         scheduler();
         window.clearInterval(schedulerTimer);
         schedulerTimer = window.setInterval(scheduler, 90);
@@ -1335,6 +1402,13 @@
         musicGain.gain.cancelScheduledValues(now);
         musicGain.gain.setValueAtTime(Math.max(0.0001, musicGain.gain.value), now);
         musicGain.gain.linearRampToValueAtTime(0.0001, now + 0.18);
+      }
+
+      if (context && sfxGain) {
+        const now = context.currentTime;
+        sfxGain.gain.cancelScheduledValues(now);
+        sfxGain.gain.setValueAtTime(Math.max(0.0001, sfxGain.gain.value), now);
+        sfxGain.gain.linearRampToValueAtTime(0.0001, now + 0.08);
       }
       updateButton();
     }
@@ -1391,12 +1465,14 @@
       armAutoStart,
       handleVisibility,
       toggle,
+      playClear,
       getState() {
         return {
           enabled,
           started,
           running,
-          contextState: context ? context.state : 'none'
+          contextState: context ? context.state : 'none',
+          sfxCount
         };
       }
     };
@@ -1524,6 +1600,8 @@
       for (const group of groups) {
         showScoreFloat(group, group.length * POINTS_PER_FRUIT * cascade, cascade);
       }
+
+      sound.playClear(cascade);
 
       for (const i of matched) cells[i].classList.add('matched');
       await wait(390);
@@ -1715,15 +1793,15 @@
 
   restartBtn.addEventListener('click', newGame);
   againBtn.addEventListener('click', newGame);
-  musicBtn.addEventListener('click', music.toggle);
+  musicBtn.addEventListener('click', sound.toggle);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) hideToast();
-    music.handleVisibility();
+    sound.handleVisibility();
   });
 
   buildGrid();
   newGame();
-  music.armAutoStart();
+  sound.armAutoStart();
 
   // A tiny read-only hook for automated smoke tests; it cannot alter game state.
   window.__fruitGame = {
@@ -1740,7 +1818,7 @@
       };
     },
     getAudioState() {
-      return music.getState();
+      return sound.getState();
     }
   };
 })();
