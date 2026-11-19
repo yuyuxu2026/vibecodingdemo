@@ -325,6 +325,28 @@
     line-height: 1;
   }
 
+  .help-btn {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    color: #7a356e;
+    background: rgba(255, 255, 255, 0.56);
+    box-shadow: 0 3px 8px rgba(99, 44, 115, 0.1), inset 0 1px 0 #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.16s ease;
+  }
+
+  .help-btn:hover { background: #fff; transform: scale(1.06); }
+
   .star-goals {
     flex: 0 0 auto;
     display: flex;
@@ -562,6 +584,76 @@
     will-change: transform, opacity;
   }
 
+  .cell[data-special] {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.86), 0 0 13px rgba(255, 200, 45, 0.38);
+  }
+
+  .cell[data-special="row"] {
+    box-shadow: inset 0 0 0 2px rgba(125, 197, 255, 0.95), 0 0 14px rgba(64, 158, 255, 0.5);
+  }
+
+  .cell[data-special="col"] {
+    box-shadow: inset 0 0 0 2px rgba(105, 226, 182, 0.95), 0 0 14px rgba(25, 184, 126, 0.45);
+  }
+
+  .cell[data-special="bomb"] {
+    box-shadow: inset 0 0 0 2px rgba(255, 202, 92, 0.98), 0 0 14px rgba(255, 145, 27, 0.5);
+  }
+
+  .cell[data-special] .fruit {
+    filter: drop-shadow(0 0 6px rgba(255, 244, 173, 0.9));
+  }
+
+  .cell[data-special]::after {
+    position: absolute;
+    top: clamp(2px, 0.45vmin, 4px);
+    right: clamp(2px, 0.45vmin, 4px);
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    width: clamp(15px, calc(var(--board-size) * 0.033), 21px);
+    height: clamp(15px, calc(var(--board-size) * 0.033), 21px);
+    border: 1.5px solid rgba(255, 255, 255, 0.98);
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 7px rgba(73, 36, 94, 0.34);
+    font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+    font-size: clamp(10px, calc(var(--board-size) * 0.019), 13px);
+    font-weight: 900;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .cell[data-special="row"]::after { content: "↔"; color: #0b5fce; border-color: #b8ddff; }
+  .cell[data-special="col"]::after { content: "↕"; color: #087e60; border-color: #b2f1dc; }
+  .cell[data-special="bomb"]::after { content: "💥"; background: #fff4db; border-color: #ffd691; }
+  .cell[data-special="rainbow"]::after {
+    content: "✦";
+    color: #ffffff;
+    background: conic-gradient(from 15deg, #ff5d9e, #ffd84d, #65d6a6, #61a8ff, #b06bff, #ff5d9e);
+    border-color: #ffe8fb;
+    text-shadow: 0 1px 2px rgba(92, 30, 102, 0.45);
+  }
+
+  .cell[data-special="rainbow"] {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 15px rgba(255, 132, 203, 0.5);
+  }
+
+  .cell.special-born::after { animation: specialBadgePop 0.55s cubic-bezier(0.18, 0.9, 0.3, 1.25); }
+  .cell.special-born .fruit { animation: specialFruitBorn 0.55s cubic-bezier(0.18, 0.9, 0.3, 1.25); }
+
+  @keyframes specialBadgePop {
+    0% { transform: scale(0) rotate(-55deg); opacity: 0; }
+    65% { transform: scale(1.28) rotate(8deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  @keyframes specialFruitBorn {
+    0% { transform: scale(0.65); }
+    55% { transform: scale(1.22) rotate(4deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
   .cell.swapped .fruit { animation: swapPop 0.26s cubic-bezier(0.2, 0.9, 0.35, 1); }
 
   @keyframes swapPop {
@@ -624,6 +716,115 @@
     z-index: 20;
     pointer-events: none;
     overflow: visible;
+  }
+
+  .blast-beam {
+    position: absolute;
+    z-index: 19;
+    pointer-events: none;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), #96e8ff 16%, #ffffff 50%, #96e8ff 84%, rgba(255, 255, 255, 0));
+    box-shadow: 0 0 12px #6fd8ff, 0 0 28px rgba(93, 198, 255, 0.72);
+  }
+
+  .blast-beam.horizontal {
+    left: 2%;
+    width: 96%;
+    height: clamp(8px, 1.8vmin, 14px);
+    transform: translateY(-50%) scaleX(0.2);
+    animation: blastRow 0.52s cubic-bezier(0.12, 0.8, 0.28, 1) forwards;
+  }
+
+  .blast-beam.vertical {
+    top: 2%;
+    height: 96%;
+    width: clamp(8px, 1.8vmin, 14px);
+    transform: translateX(-50%) scaleY(0.2);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0), #96e8ff 16%, #ffffff 50%, #96e8ff 84%, rgba(255, 255, 255, 0));
+    animation: blastColumn 0.52s cubic-bezier(0.12, 0.8, 0.28, 1) forwards;
+  }
+
+  @keyframes blastRow {
+    0% { opacity: 0; transform: translateY(-50%) scaleX(0.2); }
+    22% { opacity: 1; }
+    60% { opacity: 1; transform: translateY(-50%) scaleX(1); }
+    100% { opacity: 0; transform: translateY(-50%) scaleX(1.03); }
+  }
+
+  @keyframes blastColumn {
+    0% { opacity: 0; transform: translateX(-50%) scaleY(0.2); }
+    22% { opacity: 1; }
+    60% { opacity: 1; transform: translateX(-50%) scaleY(1); }
+    100% { opacity: 0; transform: translateX(-50%) scaleY(1.03); }
+  }
+
+  .blast-ring {
+    position: absolute;
+    z-index: 19;
+    width: 48px;
+    height: 48px;
+    border: 4px solid #ffd34d;
+    border-radius: 50%;
+    box-shadow: 0 0 22px #ff9f2e, inset 0 0 16px rgba(255, 126, 28, 0.6);
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.4);
+    animation: blastRing 0.58s ease-out forwards;
+  }
+
+  @keyframes blastRing {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.35); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(4.2); }
+  }
+
+  .blast-rainbow {
+    position: absolute;
+    z-index: 19;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #ff5d9e, #ffd84d, #65d6a6, #61a8ff, #b06bff, #ff5d9e);
+    filter: blur(1px) saturate(1.2);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.35);
+    animation: blastRainbow 0.65s ease-out forwards;
+  }
+
+  @keyframes blastRainbow {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0.35); }
+    22% { opacity: 0.92; }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(120deg) scale(4.1); }
+  }
+
+  .special-created {
+    position: absolute;
+    z-index: 25;
+    padding: 5px 11px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(135deg, #308bff, #79d8ff);
+    box-shadow: 0 6px 16px rgba(50, 91, 163, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    font-size: clamp(10px, 1.6vw, 13px);
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    line-height: 1.25;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: specialCallout 0.95s cubic-bezier(0.16, 0.8, 0.4, 1) forwards;
+  }
+
+  .special-created[data-kind="col"] { background: linear-gradient(135deg, #0d9d78, #7ce3b3); }
+  .special-created[data-kind="bomb"] { background: linear-gradient(135deg, #ff9e2e, #ffd95a); color: #61350c; }
+  .special-created[data-kind="rainbow"] { background: linear-gradient(135deg, #ff5b9c, #ffbf4d 35%, #58d7a2 68%, #6da8ff); }
+
+  @keyframes specialCallout {
+    0% { opacity: 0; transform: translate(-50%, -30%) scale(0.7); }
+    20% { opacity: 1; transform: translate(-50%, -95%) scale(1.06); }
+    70% { opacity: 1; transform: translate(-50%, -150%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -210%) scale(0.94); }
   }
 
   .score-float {
@@ -727,6 +928,16 @@
     height: 4px;
     border-radius: 50%;
     background: rgba(94, 42, 117, 0.35);
+  }
+
+  .footer .version {
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgba(125, 76, 196, 0.13);
+    color: rgba(72, 34, 95, 0.75);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
   }
 
   .gameover {
@@ -1148,6 +1359,103 @@
     text-align: center;
   }
 
+  .help-card { width: min(92vw, 540px); }
+
+  .help-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 2px;
+  }
+
+  .help-section h3 {
+    margin: 0 0 5px;
+    color: #5d2c73;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+  }
+
+  .help-section p {
+    margin: 0;
+    color: rgba(72, 34, 95, 0.62);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .special-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .special-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.48);
+  }
+
+  .special-icon {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 3px 8px rgba(98, 44, 110, 0.12);
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .special-icon.row-icon { color: #1267d6; }
+  .special-icon.col-icon { color: #078f6d; }
+  .special-icon.rainbow-icon {
+    color: #fff;
+    background: conic-gradient(from 15deg, #ff5d9e, #ffd84d, #65d6a6, #61a8ff, #b06bff, #ff5d9e);
+    text-shadow: 0 1px 2px rgba(92, 30, 102, 0.42);
+  }
+
+  .special-copy {
+    min-width: 0;
+    color: rgba(72, 34, 95, 0.58);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .special-copy strong {
+    display: block;
+    color: #5d2c73;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .help-note {
+    margin: 0;
+    padding: 9px 11px;
+    border-radius: 12px;
+    color: rgba(111, 52, 84, 0.68);
+    background: rgba(255, 214, 103, 0.18);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 480px) {
+    .help-btn { width: 24px; height: 24px; font-size: 12px; }
+    .special-list { grid-template-columns: 1fr; }
+    .help-sections { gap: 12px; }
+  }
+
   @media (max-width: 480px) {
     .top-actions { gap: 5px; }
     .restart-btn,
@@ -1174,8 +1482,8 @@
     .again-btn { padding: 13px 10px; font-size: 15px; }
     .level-picker { padding: 12px; }
     .picker-card { max-height: calc(100dvh - 24px); padding: 18px 16px; }
-    .level-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .level-tile { min-height: 72px; }
+    .level-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .level-tile { min-height: 70px; }
     .tile-name { font-size: 10px; }
     .picker-tip { margin-bottom: 12px; }
   }
@@ -1262,6 +1570,7 @@
           <span class="star-target">2300</span>
         </div>
       </div>
+      <button class="help-btn" id="help-btn" type="button" aria-label="玩法说明" title="玩法说明">?</button>
     </section>
 
     <section class="hud" aria-label="游戏状态">
@@ -1286,9 +1595,11 @@
     </section>
 
     <footer class="footer" aria-hidden="true">
-      <span>🍬 三个或更多相同水果即可消除</span>
+      <span>🍬 三个连成线 · 4连/5连生成特殊水果</span>
       <span class="dot"></span>
       <span>得分越高，星级越高</span>
+      <span class="dot"></span>
+      <span class="version" title="版本号">v0.0.4</span>
     </footer>
   </main>
 
@@ -1327,7 +1638,51 @@
       </div>
       <p class="picker-tip">达到一星分数即可解锁下一关，历史最高星级会自动保存。</p>
       <div class="level-grid" id="level-grid"></div>
-      <div class="picker-summary" id="picker-summary">已获得 0 / 30 颗星</div>
+      <div class="picker-summary" id="picker-summary">已获得 0 / 45 颗星</div>
+    </div>
+  </div>
+
+  <div class="level-picker" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+    <div class="picker-card help-card">
+      <div class="picker-head">
+        <div>
+          <p class="picker-kicker">游戏指南</p>
+          <h2 class="picker-title" id="help-title">玩法说明</h2>
+        </div>
+        <button class="picker-close" id="help-close" type="button" aria-label="关闭玩法说明">×</button>
+      </div>
+      <div class="help-sections">
+        <section class="help-section">
+          <h3>基础玩法</h3>
+          <p>点击两个相邻水果交换位置，横竖连成 3 个或以上即可消除。无效交换不会消耗步数。</p>
+        </section>
+        <section class="help-section">
+          <h3>特殊水果</h3>
+          <div class="special-list">
+            <div class="special-item">
+              <span class="special-icon row-icon" aria-hidden="true">↔</span>
+              <div class="special-copy"><strong>横向火箭</strong>交换形成 4 个横向相连水果，触发后清除整行。</div>
+            </div>
+            <div class="special-item">
+              <span class="special-icon col-icon" aria-hidden="true">↕</span>
+              <div class="special-copy"><strong>纵向火箭</strong>交换形成 4 个纵向相连水果，触发后清除整列。</div>
+            </div>
+            <div class="special-item">
+              <span class="special-icon" aria-hidden="true">💥</span>
+              <div class="special-copy"><strong>炸弹</strong>交换形成 L/T 形（横竖同时消除），触发后炸掉周围 3×3。</div>
+            </div>
+            <div class="special-item">
+              <span class="special-icon rainbow-icon" aria-hidden="true">✦</span>
+              <div class="special-copy"><strong>彩虹水果</strong>交换形成 5 个或以上直线相连，触发后清除同种水果。</div>
+            </div>
+          </div>
+          <p class="help-note">特殊水果会保留在棋盘上，再次参与消除时触发；多个特殊水果可以连锁爆破。</p>
+        </section>
+        <section class="help-section">
+          <h3>闯关与星级</h3>
+          <p>在限定步数内尽量获得高分。达到一星即可解锁下一关，分数越高星级越高；闯关进度和最佳成绩会自动保存在浏览器本地。</p>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -1348,7 +1703,12 @@
     { name: '缤纷果篮', moves: 24, stars: [1150, 2000, 2700] },
     { name: '蜜糖果园', moves: 24, stars: [1250, 2200, 2900] },
     { name: '水果盛宴', moves: 22, stars: [1200, 2100, 2800] },
-    { name: '消消乐大师', moves: 22, stars: [1300, 2300, 3000] }
+    { name: '消消乐大师', moves: 22, stars: [1300, 2300, 3000] },
+    { name: '果香瀑布', moves: 20, stars: [1300, 2200, 3000] },
+    { name: '彩虹山谷', moves: 20, stars: [1400, 2400, 3200] },
+    { name: '星愿果园', moves: 18, stars: [1300, 2300, 3100] },
+    { name: '水果王冠', moves: 18, stars: [1400, 2500, 3300] },
+    { name: '传奇果农', moves: 16, stars: [1300, 2400, 3200] }
   ];
   const TYPES = [
     { emoji: '🍎', name: '苹果' },
@@ -1358,6 +1718,18 @@
     { emoji: '🍉', name: '西瓜' },
     { emoji: '🥝', name: '猕猴桃' }
   ];
+  const SPECIAL_LABELS = {
+    row: '横向火箭',
+    col: '纵向火箭',
+    bomb: '炸弹',
+    rainbow: '彩虹水果'
+  };
+  const SPECIAL_ICONS = {
+    row: '↔',
+    col: '↕',
+    bomb: '💥',
+    rainbow: '✦'
+  };
 
   const boardEl = document.getElementById('board');
   const boardWrapEl = document.getElementById('board-wrap');
@@ -1393,6 +1765,9 @@
   const levelPickerCloseBtn = document.getElementById('level-picker-close');
   const levelGridEl = document.getElementById('level-grid');
   const pickerSummaryEl = document.getElementById('picker-summary');
+  const helpBtn = document.getElementById('help-btn');
+  const helpModalEl = document.getElementById('help-modal');
+  const helpCloseBtn = document.getElementById('help-close');
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cells = [];
@@ -1401,6 +1776,7 @@
   const progress = loadProgress();
   let currentLevel = Math.min(progress.unlocked, LEVELS.length - 1);
   let board = [];
+  let specials = new Array(SIZE * SIZE).fill(null);
   let selected = -1;
   let busy = false;
   let gameOver = false;
@@ -1411,6 +1787,9 @@
   let introTimer = 0;
   let comboTimer = 0;
   let levelPickerReturnFocus = null;
+  let helpReturnFocus = null;
+  let specialsCreated = 0;
+  let specialsTriggered = 0;
 
   const randomType = () => Math.floor(Math.random() * TYPES.length);
   const indexOf = (row, col) => row * SIZE + col;
@@ -1450,6 +1829,14 @@
         defaults.bestScores[i] = Number.isFinite(scoreValue)
           ? Math.max(0, Math.floor(scoreValue))
           : 0;
+      }
+
+      // Existing saves stay valid when new levels are added: any passed level
+      // still unlocks the level after it.
+      for (let i = 0; i < LEVELS.length - 1; i++) {
+        if (defaults.bestStars[i] > 0) {
+          defaults.unlocked = Math.max(defaults.unlocked, i + 1);
+        }
       }
       return defaults;
     } catch (error) {
@@ -1558,6 +1945,10 @@
     const temp = board[a];
     board[a] = board[b];
     board[b] = temp;
+
+    const tempSpecial = specials[a];
+    specials[a] = specials[b];
+    specials[b] = tempSpecial;
   }
 
   function findPossibleMove(data) {
@@ -1623,7 +2014,11 @@
 
   function updateCellLabel(i, type) {
     const fruitName = type === null || type === undefined ? '空位' : TYPES[type].name;
-    cells[i].setAttribute('aria-label', `第 ${rowOf(i) + 1} 行第 ${colOf(i) + 1} 列，${fruitName}`);
+    const specialName = specials[i] ? `，${SPECIAL_LABELS[specials[i]]}` : '';
+    cells[i].setAttribute(
+      'aria-label',
+      `第 ${rowOf(i) + 1} 行第 ${colOf(i) + 1} 列，${fruitName}${specialName}`
+    );
   }
 
   function renderBoard(animatedCells = []) {
@@ -1633,6 +2028,13 @@
       const type = board[i];
       const cell = cells[i];
       const fruit = fruitSpans[i];
+      const special = specials[i];
+
+      if (special) {
+        cell.dataset.special = special;
+      } else {
+        delete cell.dataset.special;
+      }
 
       if (type === null || type === undefined) {
         fruit.textContent = '';
@@ -1734,6 +2136,7 @@
     let running = false;
     let pausedByVisibility = false;
     let sfxCount = 0;
+    let blastCount = 0;
 
     const midiToFreq = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
 
@@ -1766,7 +2169,7 @@
       compressor.connect(masterGain);
       masterGain.connect(context.destination);
 
-      const bufferLength = Math.floor(context.sampleRate * 0.08);
+      const bufferLength = Math.floor(context.sampleRate * 0.24);
       noiseBuffer = context.createBuffer(1, bufferLength, context.sampleRate);
       const noiseData = noiseBuffer.getChannelData(0);
       for (let i = 0; i < bufferLength; i++) {
@@ -1899,6 +2302,67 @@
         fizzEnvelope.connect(sfxGain);
         fizz.start(now);
         fizz.stop(now + 0.11);
+      }
+
+      return true;
+    }
+
+    function playBlast(type) {
+      if (!enabled || !context || context.state !== 'running' || !sfxGain) return false;
+
+      blastCount++;
+      const now = context.currentTime + 0.01;
+      const kind = type || 'row';
+
+      if (noiseBuffer) {
+        const whoosh = context.createBufferSource();
+        const filter = context.createBiquadFilter();
+        const whooshEnvelope = context.createGain();
+        whoosh.buffer = noiseBuffer;
+        filter.type = 'bandpass';
+        filter.Q.value = 0.9;
+        filter.frequency.setValueAtTime(kind === 'bomb' ? 420 : 2600, now);
+        filter.frequency.exponentialRampToValueAtTime(kind === 'bomb' ? 120 : 520, now + 0.22);
+        whooshEnvelope.gain.setValueAtTime(0.0001, now);
+        whooshEnvelope.gain.exponentialRampToValueAtTime(0.068, now + 0.014);
+        whooshEnvelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+        whoosh.connect(filter);
+        filter.connect(whooshEnvelope);
+        whooshEnvelope.connect(sfxGain);
+        whoosh.start(now);
+        whoosh.stop(now + 0.25);
+      }
+
+      if (kind === 'bomb') {
+        const boom = context.createOscillator();
+        const boomEnvelope = context.createGain();
+        boom.type = 'sine';
+        boom.frequency.setValueAtTime(132, now);
+        boom.frequency.exponentialRampToValueAtTime(40, now + 0.22);
+        boomEnvelope.gain.setValueAtTime(0.0001, now);
+        boomEnvelope.gain.exponentialRampToValueAtTime(0.12, now + 0.012);
+        boomEnvelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+        boom.connect(boomEnvelope);
+        boomEnvelope.connect(sfxGain);
+        boom.start(now);
+        boom.stop(now + 0.3);
+      } else if (kind === 'rainbow') {
+        [79, 84, 88, 91].forEach((midi, index) => {
+          playTone(midiToFreq(midi), now + index * 0.035, 0.22, 'triangle', 0.03, sfxGain);
+        });
+      } else {
+        const zap = context.createOscillator();
+        const zapEnvelope = context.createGain();
+        zap.type = 'triangle';
+        zap.frequency.setValueAtTime(220, now);
+        zap.frequency.exponentialRampToValueAtTime(880, now + 0.16);
+        zapEnvelope.gain.setValueAtTime(0.0001, now);
+        zapEnvelope.gain.exponentialRampToValueAtTime(0.06, now + 0.012);
+        zapEnvelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+        zap.connect(zapEnvelope);
+        zapEnvelope.connect(sfxGain);
+        zap.start(now);
+        zap.stop(now + 0.22);
       }
 
       return true;
@@ -2047,13 +2511,15 @@
       handleVisibility,
       toggle,
       playClear,
+      playBlast,
       getState() {
         return {
           enabled,
           started,
           running,
           contextState: context ? context.state : 'none',
-          sfxCount
+          sfxCount,
+          blastCount
         };
       }
     };
@@ -2133,35 +2599,202 @@
     }
   }
 
+  function runLengthsAt(index) {
+    const type = board[index];
+    if (type === null || type === undefined) return { horizontal: 0, vertical: 0 };
+
+    const r = rowOf(index);
+    const c = colOf(index);
+    let horizontal = 1;
+    let vertical = 1;
+
+    for (let cc = c - 1; cc >= 0 && board[indexOf(r, cc)] === type; cc--) horizontal++;
+    for (let cc = c + 1; cc < SIZE && board[indexOf(r, cc)] === type; cc++) horizontal++;
+    for (let rr = r - 1; rr >= 0 && board[indexOf(rr, c)] === type; rr--) vertical++;
+    for (let rr = r + 1; rr < SIZE && board[indexOf(rr, c)] === type; rr++) vertical++;
+
+    return { horizontal, vertical };
+  }
+
+  function getSpecialCreation(a, b) {
+    const priority = { row: 2, col: 2, bomb: 3, rainbow: 4 };
+    let best = null;
+
+    // Prefer the destination cell when two candidates are equally strong.
+    for (const index of [b, a]) {
+      if (specials[index]) continue;
+
+      const { horizontal, vertical } = runLengthsAt(index);
+      if (horizontal < 3 && vertical < 3) continue;
+
+      let type = null;
+      if (horizontal >= 5 || vertical >= 5) {
+        type = 'rainbow';
+      } else if (horizontal >= 3 && vertical >= 3) {
+        type = 'bomb';
+      } else if (horizontal === 4) {
+        type = 'row';
+      } else if (vertical === 4) {
+        type = 'col';
+      }
+
+      if (!type) continue;
+      if (!best || priority[type] > priority[best.type]) {
+        best = { index, type };
+      }
+    }
+
+    return best;
+  }
+
+  function expandSpecialEffects(initialMatched) {
+    const clearSet = new Set(initialMatched);
+    const effects = [];
+    const queued = new Set();
+    const queue = [];
+
+    for (const index of initialMatched) {
+      if (specials[index]) {
+        queued.add(index);
+        queue.push(index);
+      }
+    }
+
+    while (queue.length) {
+      const index = queue.shift();
+      const type = specials[index];
+      if (!type) continue;
+
+      effects.push({ index, type });
+      specialsTriggered++;
+      const r = rowOf(index);
+      const c = colOf(index);
+      const affected = [];
+
+      if (type === 'row') {
+        for (let cc = 0; cc < SIZE; cc++) affected.push(indexOf(r, cc));
+      } else if (type === 'col') {
+        for (let rr = 0; rr < SIZE; rr++) affected.push(indexOf(rr, c));
+      } else if (type === 'bomb') {
+        for (let rr = Math.max(0, r - 1); rr <= Math.min(SIZE - 1, r + 1); rr++) {
+          for (let cc = Math.max(0, c - 1); cc <= Math.min(SIZE - 1, c + 1); cc++) {
+            affected.push(indexOf(rr, cc));
+          }
+        }
+      } else if (type === 'rainbow') {
+        const targetType = board[index];
+        for (let i = 0; i < board.length; i++) {
+          if (board[i] === targetType) affected.push(i);
+        }
+      }
+
+      for (const cellIndex of affected) {
+        if (board[cellIndex] === null) continue;
+        if (!clearSet.has(cellIndex)) clearSet.add(cellIndex);
+        if (specials[cellIndex] && !queued.has(cellIndex)) {
+          queued.add(cellIndex);
+          queue.push(cellIndex);
+        }
+      }
+    }
+
+    return { clearSet, effects };
+  }
+
+  function cellCenter(index) {
+    const boardRect = boardEl.getBoundingClientRect();
+    const rect = cells[index].getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2 - boardRect.left,
+      y: rect.top + rect.height / 2 - boardRect.top
+    };
+  }
+
+  function showSpecialEffect(effect) {
+    const { x, y } = cellCenter(effect.index);
+    let el;
+
+    if (effect.type === 'row') {
+      el = document.createElement('div');
+      el.className = 'blast-beam horizontal';
+      el.style.top = y + 'px';
+    } else if (effect.type === 'col') {
+      el = document.createElement('div');
+      el.className = 'blast-beam vertical';
+      el.style.left = x + 'px';
+    } else if (effect.type === 'bomb') {
+      el = document.createElement('div');
+      el.className = 'blast-ring';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    } else {
+      el = document.createElement('div');
+      el.className = 'blast-rainbow';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+
+    fxLayerEl.appendChild(el);
+    window.setTimeout(() => el.remove(), reducedMotion ? 120 : 750);
+  }
+
+  function markSpecialCreated(creation) {
+    specials[creation.index] = creation.type;
+    specialsCreated++;
+
+    const cell = cells[creation.index];
+    cell.dataset.special = creation.type;
+    cell.classList.remove('special-born');
+    void cell.offsetWidth;
+    cell.classList.add('special-born');
+    updateCellLabel(creation.index, board[creation.index]);
+
+    const { x, y } = cellCenter(creation.index);
+    const label = document.createElement('div');
+    label.className = 'special-created';
+    label.dataset.kind = creation.type;
+    label.textContent = `${SPECIAL_ICONS[creation.type]} ${SPECIAL_LABELS[creation.type]}！`;
+    label.style.left = x + 'px';
+    label.style.top = y + 'px';
+    fxLayerEl.appendChild(label);
+
+    window.setTimeout(() => cell.classList.remove('special-born'), reducedMotion ? 160 : 600);
+    window.setTimeout(() => label.remove(), reducedMotion ? 180 : 1100);
+  }
+
   function collapseAndRefill() {
     const changed = new Set();
 
     for (let c = 0; c < SIZE; c++) {
-      let writeRow = SIZE - 1;
+      const survivors = [];
 
-      for (let r = SIZE - 1; r >= 0; r--) {
+      for (let r = 0; r < SIZE; r++) {
         const from = indexOf(r, c);
-        if (board[from] === null) continue;
-
-        const to = indexOf(writeRow, c);
-        if (to !== from) {
-          board[to] = board[from];
-          changed.add(to);
+        if (board[from] !== null) {
+          survivors.push({ value: board[from], special: specials[from] });
         }
-        writeRow--;
       }
 
-      for (let r = writeRow; r >= 0; r--) {
+      const newColumn = [];
+      const holes = SIZE - survivors.length;
+      for (let i = 0; i < holes; i++) {
+        newColumn.push({ value: randomType(), special: null });
+      }
+      newColumn.push(...survivors);
+
+      for (let r = 0; r < SIZE; r++) {
         const to = indexOf(r, c);
-        board[to] = randomType();
-        changed.add(to);
+        const item = newColumn[r];
+        if (board[to] !== item.value || specials[to] !== item.special) changed.add(to);
+        board[to] = item.value;
+        specials[to] = item.special;
       }
     }
 
     return changed;
   }
 
-  async function resolveMatches(token) {
+  async function resolveMatches(token, creation = null) {
     let cascade = 0;
 
     while (token === session) {
@@ -2172,25 +2805,40 @@
       setCombo(cascade);
       if (cascade > 1) showComboFloat(cascade);
 
-      const gained = matched.size * POINTS_PER_FRUIT * cascade;
+      const expanded = expandSpecialEffects(matched);
+      const clearSet = expanded.clearSet;
+
+      if (cascade === 1 && creation && clearSet.has(creation.index) && !specials[creation.index]) {
+        clearSet.delete(creation.index);
+        markSpecialCreated(creation);
+      }
+      if (clearSet.size === 0) break;
+
+      const gained = clearSet.size * POINTS_PER_FRUIT * cascade;
       score += gained;
       updateHud();
       bump(scoreValueEl);
 
-      const groups = componentsOf(matched);
+      const groups = componentsOf(clearSet);
       for (const group of groups) {
         showScoreFloat(group, group.length * POINTS_PER_FRUIT * cascade, cascade);
       }
 
+      for (const effect of expanded.effects) {
+        showSpecialEffect(effect);
+      }
+      const blastKinds = [...new Set(expanded.effects.map((effect) => effect.type))].slice(0, 2);
+      for (const kind of blastKinds) sound.playBlast(kind);
       sound.playClear(cascade);
 
-      for (const i of matched) cells[i].classList.add('matched');
+      for (const i of clearSet) cells[i].classList.add('matched');
       await wait(390);
       if (token !== session) return;
 
-      for (const i of matched) {
+      for (const i of clearSet) {
         cells[i].classList.remove('matched');
         board[i] = null;
+        specials[i] = null;
       }
 
       const changed = collapseAndRefill();
@@ -2213,6 +2861,7 @@
     if (token !== session) return;
 
     board = generateBoard();
+    specials = new Array(SIZE * SIZE).fill(null);
     selected = -1;
     syncSelection();
     renderBoard();
@@ -2261,7 +2910,8 @@
     setCombo(1);
     updateHud();
     bump(movesValueEl);
-    await resolveMatches(token);
+    const creation = getSpecialCreation(a, b);
+    await resolveMatches(token, creation);
     if (token !== session) return;
 
     if (moves <= 0) {
@@ -2447,6 +3097,29 @@
     levelPickerReturnFocus = null;
   }
 
+  function openHelp() {
+    helpReturnFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : helpBtn;
+    helpModalEl.hidden = false;
+    requestAnimationFrame(() => helpModalEl.classList.add('show'));
+    window.setTimeout(() => helpCloseBtn.focus({ preventScroll: true }), 100);
+  }
+
+  function closeHelp() {
+    if (helpModalEl.hidden) return;
+    helpModalEl.classList.remove('show');
+    helpModalEl.hidden = true;
+    if (
+      helpReturnFocus &&
+      document.contains(helpReturnFocus) &&
+      typeof helpReturnFocus.focus === 'function'
+    ) {
+      helpReturnFocus.focus({ preventScroll: true });
+    }
+    helpReturnFocus = null;
+  }
+
   function newGame() {
     const shouldRestoreLevelFocus =
       gameoverEl.contains(document.activeElement) || levelPickerEl.contains(document.activeElement);
@@ -2464,18 +3137,23 @@
     hideToast();
     hideGameOver();
     closeLevelPicker();
+    closeHelp();
     boardWrapEl.classList.remove('shuffling');
     boardEl.classList.remove('invalid');
     fxLayerEl.innerHTML = '';
 
     for (const cell of cells) {
-      cell.classList.remove('matched', 'selected', 'swapped', 'drop-in');
+      cell.classList.remove('matched', 'selected', 'swapped', 'drop-in', 'special-born');
     }
     for (const fruit of fruitSpans) fruit.textContent = '';
 
     comboValueEl.dataset.level = '1';
     comboValueEl.textContent = '×1';
     movesCardEl.classList.remove('low');
+
+    specials = new Array(SIZE * SIZE).fill(null);
+    specialsCreated = 0;
+    specialsTriggered = 0;
 
     updateHud();
     board = generateBoard();
@@ -2504,8 +3182,18 @@
   levelPickerEl.addEventListener('click', (event) => {
     if (event.target === levelPickerEl) closeLevelPicker();
   });
+  helpBtn.addEventListener('click', openHelp);
+  helpCloseBtn.addEventListener('click', closeHelp);
+  helpModalEl.addEventListener('click', (event) => {
+    if (event.target === helpModalEl) closeHelp();
+  });
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !levelPickerEl.hidden) closeLevelPicker();
+    if (event.key !== 'Escape') return;
+    if (!helpModalEl.hidden) {
+      closeHelp();
+    } else if (!levelPickerEl.hidden) {
+      closeLevelPicker();
+    }
   });
   musicBtn.addEventListener('click', sound.toggle);
   document.addEventListener('visibilitychange', () => {
@@ -2538,7 +3226,11 @@
         bestStars: progress.bestStars.slice(),
         bestScores: progress.bestScores.slice(),
         unlockedLevel: progress.unlocked + 1,
-        levelPickerOpen: !levelPickerEl.hidden
+        levelPickerOpen: !levelPickerEl.hidden,
+        helpOpen: !helpModalEl.hidden,
+        specials: specials.slice(),
+        specialsCreated,
+        specialsTriggered
       };
     },
     getAudioState() {
