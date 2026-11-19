@@ -8,7 +8,7 @@
 <title>水果消消乐 · 三个连成线</title>
 <style>
   :root {
-    --board-size: min(94vw, 62vh, 660px);
+    --board-size: min(94vw, 60vh, 660px);
     --gap: clamp(3px, calc(var(--board-size) * 0.0095), 7px);
     --cell-radius: clamp(10px, calc(var(--board-size) * 0.024), 18px);
     --fruit-size: clamp(20px, calc(var(--board-size) * 0.07), 46px);
@@ -257,6 +257,121 @@
   @keyframes equalizer {
     from { transform: scaleY(0.3); }
     to   { transform: scaleY(1); }
+  }
+
+  .level-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 40px;
+    padding: 4px 7px 4px 4px;
+    border: 2px solid rgba(255, 255, 255, 0.86);
+    border-radius: clamp(14px, 2.2vw, 18px);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.66), rgba(255, 234, 248, 0.48));
+    box-shadow: 0 7px 18px rgba(94, 43, 116, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  }
+
+  .level-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 5px 9px;
+    border: 0;
+    border-radius: 11px;
+    color: #5a2b74;
+    background: rgba(255, 255, 255, 0.56);
+    font-family: inherit;
+    font-size: clamp(10px, 1.55vw, 13px);
+    font-weight: 900;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .level-badge:hover {
+    background: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(111, 44, 102, 0.12);
+  }
+
+  .level-badge:active { transform: translateY(0) scale(0.98); }
+
+  .level-index {
+    color: rgba(72, 34, 95, 0.64);
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+  }
+
+  .level-index strong {
+    color: #b62f76;
+    font-size: 1.25em;
+    font-weight: 900;
+  }
+
+  .level-name {
+    max-width: 6.8em;
+    overflow: hidden;
+    color: #6f2c66;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .level-chevron {
+    margin-left: 1px;
+    color: rgba(99, 44, 115, 0.48);
+    font-size: 0.9em;
+    line-height: 1;
+  }
+
+  .star-goals {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1.35vw, 12px);
+  }
+
+  .star-goal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    min-width: 25px;
+  }
+
+  .star-shape {
+    color: rgba(163, 118, 40, 0.23);
+    font-size: clamp(16px, 2.45vw, 22px);
+    line-height: 1;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+    transition: color 0.2s ease, transform 0.2s ease, text-shadow 0.2s ease;
+  }
+
+  .star-target {
+    color: rgba(72, 34, 95, 0.46);
+    font-size: clamp(8px, 1.15vw, 10px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .star-goal.earned .star-shape {
+    color: #ffc52d;
+    text-shadow: 0 1px 0 #fff5c7, 0 0 12px rgba(255, 182, 20, 0.72);
+  }
+
+  .star-goal.earned .star-target { color: #a56900; }
+
+  .star-goal.next .star-shape {
+    color: rgba(200, 143, 37, 0.72);
+    animation: nextStarPulse 1.25s ease-in-out infinite;
+  }
+
+  @keyframes nextStarPulse {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.18); filter: brightness(1.22); }
   }
 
   .hud {
@@ -634,7 +749,9 @@
   .overlay-card {
     position: relative;
     width: min(90vw, 390px);
-    overflow: hidden;
+    max-height: calc(100dvh - 24px);
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: clamp(24px, 5vw, 34px) clamp(20px, 5vw, 30px) clamp(22px, 4vw, 28px);
     border: 3px solid rgba(255, 255, 255, 0.92);
     border-radius: clamp(24px, 5vw, 34px);
@@ -700,16 +817,52 @@
     position: relative;
     z-index: 1;
     min-height: 20px;
-    margin: 7px 0 18px;
+    margin: 4px 0 14px;
     color: rgba(72, 34, 95, 0.64);
     font-size: 13px;
     font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .result-stars {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(4px, 1.5vw, 10px);
+    min-height: clamp(40px, 8vw, 52px);
+    margin-top: 3px;
+  }
+
+  .result-star {
+    display: inline-block;
+    color: rgba(158, 113, 65, 0.17);
+    font-size: clamp(35px, 8.5vw, 50px);
+    line-height: 1;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, 0.7);
+    transform: scale(0.86) rotate(-4deg);
+  }
+
+  .result-star.earned {
+    color: #ffc52d;
+    text-shadow: 0 2px 0 #fff1a8, 0 0 18px rgba(255, 178, 23, 0.72), 0 8px 16px rgba(172, 105, 0, 0.2);
+    animation: resultStarPop 0.55s cubic-bezier(0.18, 0.9, 0.3, 1.25) both;
+  }
+
+  .result-star.earned:nth-child(2) { animation-delay: 0.14s; }
+  .result-star.earned:nth-child(3) { animation-delay: 0.28s; }
+
+  @keyframes resultStarPop {
+    0% { opacity: 0; transform: scale(0) rotate(-30deg); }
+    65% { opacity: 1; transform: scale(1.2) rotate(6deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
   }
 
   .final-panel {
     position: relative;
     z-index: 1;
-    margin-bottom: 20px;
+    margin-bottom: 17px;
     padding: 12px 18px 14px;
     border: 2px solid rgba(255, 255, 255, 0.92);
     border-radius: 21px;
@@ -736,10 +889,34 @@
     text-shadow: 0 2px 0 #fff, 0 5px 14px rgba(221, 95, 44, 0.18);
   }
 
+  .best-result {
+    margin-top: 5px;
+    color: rgba(72, 34, 95, 0.52);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+  }
+
+  .best-result .best-stars {
+    color: #e4a900;
+    letter-spacing: 1px;
+  }
+
+  .best-result .best-stars .off { color: rgba(113, 83, 112, 0.24); }
+
+  .overlay-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+  }
+
   .again-btn {
     position: relative;
     z-index: 1;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    width: auto;
     padding: 14px 20px;
     border: 2px solid rgba(255, 255, 255, 0.7);
     border-radius: 16px;
@@ -756,6 +933,221 @@
   .again-btn:hover { filter: brightness(1.04); transform: translateY(-2px); box-shadow: 0 11px 0 #d34b76, 0 17px 28px rgba(194, 64, 111, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
   .again-btn:active { transform: translateY(6px); box-shadow: 0 3px 0 #d34b76, 0 6px 14px rgba(194, 64, 111, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
 
+  .again-btn.secondary {
+    color: #8a356c;
+    background: rgba(255, 255, 255, 0.72);
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 6px 0 rgba(204, 155, 180, 0.4), 0 10px 20px rgba(139, 79, 112, 0.12), inset 0 1px 0 #fff;
+  }
+
+  .again-btn.secondary:hover {
+    filter: brightness(1.02);
+    box-shadow: 0 8px 0 rgba(204, 155, 180, 0.42), 0 13px 24px rgba(139, 79, 112, 0.15), inset 0 1px 0 #fff;
+  }
+
+  .again-btn.secondary:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(204, 155, 180, 0.4), 0 5px 10px rgba(139, 79, 112, 0.12), inset 0 1px 0 #fff;
+  }
+
+  .result-picker-link {
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin: 14px auto 0;
+    padding: 4px 12px;
+    border: 0;
+    color: rgba(89, 42, 111, 0.6);
+    background: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  .result-picker-link:hover { color: #8f2f6b; }
+
+  .level-picker {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background: rgba(55, 22, 75, 0.54);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+
+  .level-picker[hidden] { display: none; }
+  .level-picker.show { opacity: 1; }
+
+  .picker-card {
+    width: min(92vw, 540px);
+    max-height: calc(100dvh - 36px);
+    overflow-y: auto;
+    padding: clamp(20px, 4vw, 28px);
+    border: 3px solid rgba(255, 255, 255, 0.92);
+    border-radius: clamp(24px, 4vw, 32px);
+    background: linear-gradient(155deg, #fffdf3 0%, #fff1dd 46%, #ffe3f2 100%);
+    box-shadow: 0 28px 80px rgba(47, 16, 68, 0.35), inset 0 1px 0 #fff;
+    transform: translateY(16px) scale(0.92);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  }
+
+  .level-picker.show .picker-card { transform: translateY(0) scale(1); }
+
+  .picker-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .picker-kicker {
+    margin: 0 0 2px;
+    color: #b73d78;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+
+  .picker-title {
+    margin: 0;
+    color: #48225f;
+    font-size: clamp(22px, 4vw, 28px);
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+
+  .picker-close {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    color: #6b2e76;
+    background: rgba(255, 255, 255, 0.64);
+    font-family: inherit;
+    font-size: 21px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.16s ease;
+  }
+
+  .picker-close:hover { background: #fff; transform: rotate(90deg); }
+
+  .picker-tip {
+    margin: 8px 0 15px;
+    color: rgba(72, 34, 95, 0.58);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .level-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 76px;
+    padding: 7px 4px;
+    border: 2px solid rgba(255, 255, 255, 0.86);
+    border-radius: 15px;
+    color: #5a2b74;
+    background: linear-gradient(155deg, rgba(255, 255, 255, 0.8), rgba(255, 218, 237, 0.58));
+    box-shadow: inset 0 1px 0 #fff, 0 5px 12px rgba(111, 48, 95, 0.08);
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .level-tile:hover:not(:disabled) {
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 #fff, 0 9px 18px rgba(111, 48, 95, 0.15);
+  }
+
+  .level-tile.current {
+    background: linear-gradient(155deg, #fffbe1, #ffe08a);
+    box-shadow: 0 0 0 3px #ffcd3c, 0 8px 18px rgba(155, 103, 0, 0.18), inset 0 1px 0 #fff;
+  }
+
+  .level-tile.locked,
+  .level-tile:disabled {
+    color: rgba(96, 74, 108, 0.42);
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: none;
+    filter: grayscale(0.35);
+    cursor: not-allowed;
+  }
+
+  .tile-number {
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .level-tile.current .tile-number { color: #b05100; }
+
+  .tile-name {
+    width: 100%;
+    overflow: hidden;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+
+  .tile-stars {
+    color: #e6a900;
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .tile-stars .off { color: rgba(110, 80, 116, 0.2); }
+  .tile-stars .on { text-shadow: 0 0 5px rgba(255, 182, 20, 0.38); }
+
+  .tile-moves {
+    color: rgba(72, 34, 95, 0.45);
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .tile-lock {
+    font-size: 18px;
+    line-height: 1;
+    opacity: 0.62;
+    filter: grayscale(0.4);
+  }
+
+  .picker-summary {
+    margin-top: 15px;
+    color: rgba(72, 34, 95, 0.54);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
   @media (max-width: 480px) {
     .top-actions { gap: 5px; }
     .restart-btn,
@@ -767,19 +1159,46 @@
     .music-btn .music-icon { font-size: 20px; }
     .subtitle { display: none; }
     .brand { gap: 8px; }
+    .level-strip { gap: 4px; min-height: 36px; padding: 3px 5px 3px 3px; border-width: 1.5px; }
+    .level-badge { gap: 4px; padding: 4px 6px; font-size: 10px; }
+    .level-name { max-width: 4.6em; }
+    .star-goals { gap: 4px; }
+    .star-goal { min-width: 22px; }
+    .star-target { font-size: 8px; }
     .hud { gap: 5px; }
     .stat { padding: 7px 9px; border-width: 1.5px; border-radius: 15px; }
     .stat-label { letter-spacing: 0.8px; }
     .footer { gap: 5px; }
+    .overlay-card { max-height: calc(100dvh - 16px); }
+    .overlay-actions { gap: 8px; }
+    .again-btn { padding: 13px 10px; font-size: 15px; }
+    .level-picker { padding: 12px; }
+    .picker-card { max-height: calc(100dvh - 24px); padding: 18px 16px; }
+    .level-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .level-tile { min-height: 72px; }
+    .tile-name { font-size: 10px; }
+    .picker-tip { margin-bottom: 12px; }
   }
 
   @media (max-height: 580px) {
     .subtitle, .footer { display: none; }
     .topbar { min-height: 34px; }
     .logo { width: 34px; height: 34px; font-size: 21px; }
+    .level-strip { min-height: 34px; padding-top: 2px; padding-bottom: 2px; }
+    .level-badge { padding-top: 3px; padding-bottom: 3px; }
     .hud .stat { padding-top: 6px; padding-bottom: 6px; }
     .hud .stat-value { font-size: clamp(19px, 3.6vw, 28px); }
     .game-shell { gap: 6px; }
+    .overlay-card { padding-top: 18px; padding-bottom: 18px; }
+    .overlay-fruit { font-size: 42px; }
+    .overlay-kicker { margin-top: 8px; }
+    .result-stars { min-height: 36px; }
+    .result-star { font-size: 32px; }
+    .overlay-message { margin: 2px 0 10px; font-size: 12px; }
+    .final-panel { margin-bottom: 12px; padding: 9px 14px 11px; }
+    .final-score { font-size: 36px; }
+    .again-btn { padding-top: 11px; padding-bottom: 11px; font-size: 14px; }
+    .result-picker-link { margin-top: 9px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -808,7 +1227,7 @@
         <div class="logo" aria-hidden="true">🍉</div>
         <div class="brand-text">
           <h1>水果消消乐</h1>
-          <p class="subtitle">交换相邻水果，三个连成线</p>
+          <p class="subtitle">限步闯关 · 分数决定星级</p>
         </div>
       </div>
       <div class="top-actions">
@@ -822,6 +1241,28 @@
         </button>
       </div>
     </header>
+
+    <section class="level-strip" aria-label="关卡目标">
+      <button class="level-badge" id="level-select-btn" type="button" aria-haspopup="dialog" title="选择关卡">
+        <span class="level-index">第 <strong id="level-number">1</strong> 关</span>
+        <span class="level-name" id="level-name">晨光果园</span>
+        <span class="level-chevron" aria-hidden="true">▾</span>
+      </button>
+      <div class="star-goals" id="star-goals" aria-label="星级目标">
+        <div class="star-goal" data-star="0" title="1 星目标">
+          <span class="star-shape" aria-hidden="true">★</span>
+          <span class="star-target">900</span>
+        </div>
+        <div class="star-goal" data-star="1" title="2 星目标">
+          <span class="star-shape" aria-hidden="true">★</span>
+          <span class="star-target">1600</span>
+        </div>
+        <div class="star-goal" data-star="2" title="3 星目标">
+          <span class="star-shape" aria-hidden="true">★</span>
+          <span class="star-target">2300</span>
+        </div>
+      </div>
+    </section>
 
     <section class="hud" aria-label="游戏状态">
       <div class="stat stat-score" id="score-card">
@@ -847,21 +1288,46 @@
     <footer class="footer" aria-hidden="true">
       <span>🍬 三个或更多相同水果即可消除</span>
       <span class="dot"></span>
-      <span>连击有额外加分</span>
+      <span>得分越高，星级越高</span>
     </footer>
   </main>
 
   <div class="gameover" id="gameover" role="dialog" aria-modal="true" aria-labelledby="overlay-title" hidden>
     <div class="overlay-card">
-      <div class="overlay-fruit" aria-hidden="true">🍉</div>
-      <p class="overlay-kicker">30 步挑战完成</p>
-      <h2 class="overlay-title" id="overlay-title">本轮结束</h2>
-      <p class="overlay-message" id="overlay-message">再来一局，冲击更高分！</p>
+      <div class="overlay-fruit" id="overlay-fruit" aria-hidden="true">🍉</div>
+      <p class="overlay-kicker" id="overlay-kicker">第 1 关 · 晨光果园</p>
+      <h2 class="overlay-title" id="overlay-title">过关成功！</h2>
+      <div class="result-stars" id="result-stars" aria-label="本局获得 0 星">
+        <span class="result-star" aria-hidden="true">★</span>
+        <span class="result-star" aria-hidden="true">★</span>
+        <span class="result-star" aria-hidden="true">★</span>
+      </div>
+      <p class="overlay-message" id="overlay-message">继续挑战更高分！</p>
       <div class="final-panel">
         <div class="final-label">本局得分</div>
         <span class="final-score" id="final-score">0</span>
+        <div class="best-result" id="best-result">历史最佳 ☆☆☆</div>
       </div>
-      <button class="again-btn" id="again-btn" type="button">再来一局</button>
+      <div class="overlay-actions">
+        <button class="again-btn" id="next-btn" type="button" hidden>进入下一关</button>
+        <button class="again-btn secondary" id="again-btn" type="button">再试一次</button>
+      </div>
+      <button class="result-picker-link" id="result-picker-btn" type="button">选择关卡</button>
+    </div>
+  </div>
+
+  <div class="level-picker" id="level-picker" role="dialog" aria-modal="true" aria-labelledby="level-picker-title" hidden>
+    <div class="picker-card">
+      <div class="picker-head">
+        <div>
+          <p class="picker-kicker">闯关地图</p>
+          <h2 class="picker-title" id="level-picker-title">选择关卡</h2>
+        </div>
+        <button class="picker-close" id="level-picker-close" type="button" aria-label="关闭关卡选择">×</button>
+      </div>
+      <p class="picker-tip">达到一星分数即可解锁下一关，历史最高星级会自动保存。</p>
+      <div class="level-grid" id="level-grid"></div>
+      <div class="picker-summary" id="picker-summary">已获得 0 / 30 颗星</div>
     </div>
   </div>
 
@@ -870,8 +1336,20 @@
   'use strict';
 
   const SIZE = 10;
-  const START_MOVES = 30;
   const POINTS_PER_FRUIT = 10;
+  const PROGRESS_KEY = 'fruitMatch3ProgressV1';
+  const LEVELS = [
+    { name: '晨光果园', moves: 30, stars: [900, 1600, 2300] },
+    { name: '莓果小径', moves: 30, stars: [1050, 1800, 2500] },
+    { name: '柠檬花园', moves: 28, stars: [1050, 1800, 2500] },
+    { name: '葡萄藤架', moves: 28, stars: [1150, 2000, 2700] },
+    { name: '西瓜派对', moves: 26, stars: [1100, 1900, 2600] },
+    { name: '猕猴桃森林', moves: 26, stars: [1200, 2100, 2800] },
+    { name: '缤纷果篮', moves: 24, stars: [1150, 2000, 2700] },
+    { name: '蜜糖果园', moves: 24, stars: [1250, 2200, 2900] },
+    { name: '水果盛宴', moves: 22, stars: [1200, 2100, 2800] },
+    { name: '消消乐大师', moves: 22, stars: [1300, 2300, 3000] }
+  ];
   const TYPES = [
     { emoji: '🍎', name: '苹果' },
     { emoji: '🫐', name: '蓝莓' },
@@ -894,31 +1372,133 @@
   const musicBtn = document.getElementById('music-btn');
   const musicIconEl = document.getElementById('music-icon');
   const restartBtn = document.getElementById('restart-btn');
+  const levelSelectBtn = document.getElementById('level-select-btn');
+  const levelNumberEl = document.getElementById('level-number');
+  const levelNameEl = document.getElementById('level-name');
+  const starGoalsEl = document.getElementById('star-goals');
+  const starGoalEls = Array.from(starGoalsEl.querySelectorAll('.star-goal'));
   const gameoverEl = document.getElementById('gameover');
+  const overlayFruitEl = document.getElementById('overlay-fruit');
+  const overlayKickerEl = document.getElementById('overlay-kicker');
+  const overlayTitleEl = document.getElementById('overlay-title');
+  const resultStarsEl = document.getElementById('result-stars');
+  const resultStarEls = Array.from(resultStarsEl.querySelectorAll('.result-star'));
   const finalScoreEl = document.getElementById('final-score');
+  const bestResultEl = document.getElementById('best-result');
   const overlayMessageEl = document.getElementById('overlay-message');
+  const nextBtn = document.getElementById('next-btn');
   const againBtn = document.getElementById('again-btn');
+  const resultPickerBtn = document.getElementById('result-picker-btn');
+  const levelPickerEl = document.getElementById('level-picker');
+  const levelPickerCloseBtn = document.getElementById('level-picker-close');
+  const levelGridEl = document.getElementById('level-grid');
+  const pickerSummaryEl = document.getElementById('picker-summary');
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cells = [];
   const fruitSpans = [];
 
+  const progress = loadProgress();
+  let currentLevel = Math.min(progress.unlocked, LEVELS.length - 1);
   let board = [];
   let selected = -1;
   let busy = false;
   let gameOver = false;
   let score = 0;
-  let moves = START_MOVES;
+  let moves = LEVELS[currentLevel].moves;
   let session = 0;
   let toastTimer = 0;
   let introTimer = 0;
   let comboTimer = 0;
+  let levelPickerReturnFocus = null;
 
   const randomType = () => Math.floor(Math.random() * TYPES.length);
   const indexOf = (row, col) => row * SIZE + col;
   const rowOf = (index) => Math.floor(index / SIZE);
   const colOf = (index) => index % SIZE;
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, reducedMotion ? Math.min(ms, 60) : ms));
+
+  function createDefaultProgress() {
+    return {
+      unlocked: 0,
+      bestStars: LEVELS.map(() => 0),
+      bestScores: LEVELS.map(() => 0)
+    };
+  }
+
+  function loadProgress() {
+    const defaults = createDefaultProgress();
+    try {
+      const raw = window.localStorage.getItem(PROGRESS_KEY);
+      if (!raw) return defaults;
+      const saved = JSON.parse(raw);
+      if (!saved || typeof saved !== 'object') return defaults;
+
+      const unlocked = Number(saved.unlocked);
+      defaults.unlocked = Number.isFinite(unlocked)
+        ? Math.max(0, Math.min(LEVELS.length - 1, Math.floor(unlocked)))
+        : 0;
+
+      const stars = Array.isArray(saved.bestStars) ? saved.bestStars : [];
+      const scores = Array.isArray(saved.bestScores) ? saved.bestScores : [];
+      for (let i = 0; i < LEVELS.length; i++) {
+        const starValue = Number(stars[i]);
+        defaults.bestStars[i] = Number.isFinite(starValue)
+          ? Math.max(0, Math.min(3, Math.floor(starValue)))
+          : 0;
+        const scoreValue = Number(scores[i]);
+        defaults.bestScores[i] = Number.isFinite(scoreValue)
+          ? Math.max(0, Math.floor(scoreValue))
+          : 0;
+      }
+      return defaults;
+    } catch (error) {
+      return defaults;
+    }
+  }
+
+  function saveProgress() {
+    try {
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    } catch (error) {
+      // Progress simply stays in memory when storage is unavailable.
+    }
+  }
+
+  function formatScore(value) {
+    return Math.max(0, Math.round(value)).toLocaleString('zh-CN');
+  }
+
+  function starsForScore(value) {
+    const thresholds = LEVELS[currentLevel].stars;
+    let stars = 0;
+    for (let i = 0; i < thresholds.length; i++) {
+      if (value >= thresholds[i]) stars++;
+    }
+    return stars;
+  }
+
+  function updateLevelUI() {
+    const level = LEVELS[currentLevel];
+    levelNumberEl.textContent = String(currentLevel + 1);
+    levelNameEl.textContent = level.name;
+    levelSelectBtn.setAttribute('aria-label', `第 ${currentLevel + 1} 关 ${level.name}，点击选择关卡`);
+
+    const nextStarIndex = level.stars.findIndex((threshold) => score < threshold);
+    starGoalEls.forEach((goalEl, index) => {
+      const threshold = level.stars[index];
+      const earned = score >= threshold;
+      goalEl.querySelector('.star-target').textContent = formatScore(threshold);
+      goalEl.classList.toggle('earned', earned);
+      goalEl.classList.toggle('next', index === nextStarIndex);
+      goalEl.title = `${index + 1} 星目标：${formatScore(threshold)} 分`;
+      goalEl.setAttribute('aria-label', `${index + 1} 星目标 ${formatScore(threshold)} 分${earned ? '，已达成' : ''}`);
+    });
+    starGoalsEl.setAttribute(
+      'aria-label',
+      `一星 ${formatScore(level.stars[0])} 分，二星 ${formatScore(level.stars[1])} 分，三星 ${formatScore(level.stars[2])} 分`
+    );
+  }
 
   function isAdjacent(a, b) {
     return Math.abs(rowOf(a) - rowOf(b)) + Math.abs(colOf(a) - colOf(b)) === 1;
@@ -1091,10 +1671,11 @@
   }
 
   function updateHud() {
-    scoreValueEl.textContent = score.toLocaleString('zh-CN');
+    scoreValueEl.textContent = formatScore(score);
     movesValueEl.textContent = String(moves);
     movesCardEl.classList.toggle('low', moves <= 5);
     comboValueEl.textContent = '×' + Math.max(1, Number(comboValueEl.dataset.level || 1));
+    updateLevelUI();
   }
 
   function setCombo(level) {
@@ -1726,21 +2307,64 @@
 
   function showGameOver() {
     gameOver = true;
-    finalScoreEl.textContent = score.toLocaleString('zh-CN');
 
-    if (score >= 4000) {
-      overlayMessageEl.textContent = '水果宗师！这波连击太漂亮了。';
-    } else if (score >= 2500) {
-      overlayMessageEl.textContent = '水果达人！手感非常不错。';
-    } else if (score >= 1200) {
-      overlayMessageEl.textContent = '表现不错，再试一次冲击更高分！';
+    const level = LEVELS[currentLevel];
+    const stars = starsForScore(score);
+    const passed = stars > 0;
+    const isFinalLevel = currentLevel === LEVELS.length - 1;
+    const previousBestScore = progress.bestScores[currentLevel] || 0;
+    const previousBestStars = progress.bestStars[currentLevel] || 0;
+    const isNewBest = score > previousBestScore;
+
+    progress.bestScores[currentLevel] = Math.max(previousBestScore, score);
+    progress.bestStars[currentLevel] = Math.max(previousBestStars, stars);
+    if (passed && !isFinalLevel) {
+      progress.unlocked = Math.max(progress.unlocked, currentLevel + 1);
+    }
+    saveProgress();
+
+    finalScoreEl.textContent = formatScore(score);
+    overlayKickerEl.textContent = `第 ${currentLevel + 1} 关 · ${level.name}`;
+    overlayTitleEl.textContent = passed ? (isFinalLevel ? '全部通关！' : '过关成功！') : '挑战失败';
+    overlayFruitEl.textContent = passed ? (stars === 3 ? '🏆' : '🍉') : '🍋';
+    resultStarsEl.setAttribute('aria-label', `本局获得 ${stars} 星`);
+
+    if (!passed) {
+      overlayMessageEl.textContent = `还差 ${formatScore(level.stars[0] - score)} 分达到一星目标，再试一次吧。`;
+    } else if (isFinalLevel) {
+      const totalStars = progress.bestStars.reduce((sum, value) => sum + value, 0);
+      overlayMessageEl.textContent = `全部 ${LEVELS.length} 关完成！你已收集 ${totalStars} / ${LEVELS.length * 3} 颗星。`;
+    } else if (stars === 3) {
+      overlayMessageEl.textContent = '三星完美通关！下一关已经解锁。';
+    } else if (stars === 2) {
+      overlayMessageEl.textContent = '两星通关！下一关已解锁，再挑战可以冲击三星。';
     } else {
-      overlayMessageEl.textContent = '再来一局，留意能连成三个的交换。';
+      overlayMessageEl.textContent = '一星通关！下一关已解锁，继续加油。';
     }
 
+    const bestStars = progress.bestStars[currentLevel];
+    const bestStarMarkup = '★'.repeat(bestStars) + `<span class="off">${'☆'.repeat(3 - bestStars)}</span>`;
+    bestResultEl.innerHTML = `历史最佳 <span class="best-stars">${bestStarMarkup}</span> · ${formatScore(progress.bestScores[currentLevel])} 分${isNewBest ? ' · 新纪录' : ''}`;
+
+    nextBtn.hidden = !(passed && !isFinalLevel);
+    if (!nextBtn.hidden) nextBtn.textContent = `进入第 ${currentLevel + 2} 关`;
+    againBtn.textContent = passed ? '再玩本关' : '再试一次';
+    againBtn.classList.toggle('secondary', !nextBtn.hidden);
+
+    resultStarEls.forEach((el) => el.classList.remove('earned'));
     gameoverEl.hidden = false;
-    requestAnimationFrame(() => gameoverEl.classList.add('show'));
-    window.setTimeout(() => againBtn.focus({ preventScroll: true }), 260);
+    requestAnimationFrame(() => {
+      gameoverEl.classList.add('show');
+      requestAnimationFrame(() => {
+        resultStarEls.forEach((el, index) => {
+          if (index < stars) el.classList.add('earned');
+        });
+      });
+    });
+
+    const focusTarget = nextBtn.hidden ? againBtn : nextBtn;
+    window.setTimeout(() => focusTarget.focus({ preventScroll: true }), 280);
+    updateLevelUI();
   }
 
   function hideGameOver() {
@@ -1748,19 +2372,98 @@
     gameoverEl.hidden = true;
   }
 
+  function startLevel(index) {
+    if (!Number.isInteger(index) || index < 0 || index >= LEVELS.length) return;
+    if (index > progress.unlocked) return;
+    currentLevel = index;
+    newGame();
+  }
+
+  function renderLevelPicker() {
+    const fragment = document.createDocumentFragment();
+
+    LEVELS.forEach((level, index) => {
+      const unlocked = index <= progress.unlocked;
+      const bestStars = progress.bestStars[index] || 0;
+      const tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'level-tile';
+      tile.classList.toggle('current', index === currentLevel);
+      tile.classList.toggle('locked', !unlocked);
+      tile.disabled = !unlocked;
+
+      if (!unlocked) {
+        tile.setAttribute('aria-label', `第 ${index + 1} 关 ${level.name}，未解锁`);
+        tile.innerHTML = `<span class="tile-number">${index + 1}</span><span class="tile-lock" aria-hidden="true">🔒</span>`;
+      } else {
+        const starMarkup = [0, 1, 2]
+          .map((starIndex) => `<span class="${starIndex < bestStars ? 'on' : 'off'}">★</span>`)
+          .join('');
+        tile.setAttribute(
+          'aria-label',
+          `第 ${index + 1} 关 ${level.name}，最佳 ${bestStars} 星，${level.moves} 步`
+        );
+        tile.innerHTML = `
+          <span class="tile-number">${index + 1}</span>
+          <span class="tile-name">${level.name}</span>
+          <span class="tile-stars" aria-hidden="true">${starMarkup}</span>
+          <span class="tile-moves">${level.moves} 步</span>
+        `;
+        tile.addEventListener('click', () => {
+          closeLevelPicker();
+          startLevel(index);
+        });
+      }
+
+      fragment.appendChild(tile);
+    });
+
+    levelGridEl.replaceChildren(fragment);
+    const totalStars = progress.bestStars.reduce((sum, value) => sum + value, 0);
+    pickerSummaryEl.textContent = `已获得 ${totalStars} / ${LEVELS.length * 3} 颗星 · 已解锁 ${progress.unlocked + 1} / ${LEVELS.length} 关`;
+  }
+
+  function openLevelPicker() {
+    renderLevelPicker();
+    levelPickerReturnFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : levelSelectBtn;
+    levelPickerEl.hidden = false;
+    requestAnimationFrame(() => levelPickerEl.classList.add('show'));
+    window.setTimeout(() => levelPickerCloseBtn.focus({ preventScroll: true }), 100);
+  }
+
+  function closeLevelPicker() {
+    if (levelPickerEl.hidden) return;
+    levelPickerEl.classList.remove('show');
+    levelPickerEl.hidden = true;
+    if (
+      levelPickerReturnFocus &&
+      document.contains(levelPickerReturnFocus) &&
+      typeof levelPickerReturnFocus.focus === 'function'
+    ) {
+      levelPickerReturnFocus.focus({ preventScroll: true });
+    }
+    levelPickerReturnFocus = null;
+  }
+
   function newGame() {
+    const shouldRestoreLevelFocus =
+      gameoverEl.contains(document.activeElement) || levelPickerEl.contains(document.activeElement);
+
     session++;
     busy = false;
     gameOver = false;
     selected = -1;
     score = 0;
-    moves = START_MOVES;
+    moves = LEVELS[currentLevel].moves;
 
     window.clearTimeout(toastTimer);
     window.clearTimeout(introTimer);
     window.clearTimeout(comboTimer);
     hideToast();
     hideGameOver();
+    closeLevelPicker();
     boardWrapEl.classList.remove('shuffling');
     boardEl.classList.remove('invalid');
     fxLayerEl.innerHTML = '';
@@ -1770,18 +2473,19 @@
     }
     for (const fruit of fruitSpans) fruit.textContent = '';
 
-    scoreValueEl.textContent = '0';
-    movesValueEl.textContent = String(START_MOVES);
-    movesCardEl.classList.remove('low');
     comboValueEl.dataset.level = '1';
     comboValueEl.textContent = '×1';
+    movesCardEl.classList.remove('low');
 
+    updateHud();
     board = generateBoard();
     renderBoard();
     animateIntro();
+    nextBtn.hidden = true;
+    resultStarEls.forEach((el) => el.classList.remove('earned'));
 
-    if (document.activeElement === againBtn) {
-      restartBtn.focus({ preventScroll: true });
+    if (shouldRestoreLevelFocus) {
+      levelSelectBtn.focus({ preventScroll: true });
     }
   }
 
@@ -1793,6 +2497,16 @@
 
   restartBtn.addEventListener('click', newGame);
   againBtn.addEventListener('click', newGame);
+  nextBtn.addEventListener('click', () => startLevel(currentLevel + 1));
+  levelSelectBtn.addEventListener('click', openLevelPicker);
+  resultPickerBtn.addEventListener('click', openLevelPicker);
+  levelPickerCloseBtn.addEventListener('click', closeLevelPicker);
+  levelPickerEl.addEventListener('click', (event) => {
+    if (event.target === levelPickerEl) closeLevelPicker();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !levelPickerEl.hidden) closeLevelPicker();
+  });
   musicBtn.addEventListener('click', sound.toggle);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) hideToast();
@@ -1814,7 +2528,17 @@
         gameOver,
         selected,
         hasMatch: findMatchSet(board).size > 0,
-        possibleMove: findPossibleMove(board.slice())
+        possibleMove: findPossibleMove(board.slice()),
+        levelIndex: currentLevel,
+        level: currentLevel + 1,
+        levelName: LEVELS[currentLevel].name,
+        levelMoves: LEVELS[currentLevel].moves,
+        starTargets: LEVELS[currentLevel].stars.slice(),
+        stars: starsForScore(score),
+        bestStars: progress.bestStars.slice(),
+        bestScores: progress.bestScores.slice(),
+        unlockedLevel: progress.unlocked + 1,
+        levelPickerOpen: !levelPickerEl.hidden
       };
     },
     getAudioState() {
